@@ -1,0 +1,31 @@
+~italic~
+*bold*
+
+`code`
+
+(link name)http://some/thing
+
+# H1
+## H2
+### H3
+#### H4
+##### H5
+
+:code:
+Some code
+:code:
+
+:quote:
+A blockquote
+:quote:
+
+:dnf:
+Some format
+:dnf:
+
+1. Numbered list item
+- Unordered list item
+
+----- HR
+
+\* escape
