@@ -20,13 +20,12 @@ describe Johndown do
     johndown(string).should == "<p>#{line1}</p><p>#{line2}</p>"
   end
 
-  it "should remove excess newlines"
-#  do
-#    line1 = "This is a paragraph"
-#    line2 = "with multiple paragraphs"
-#    string = "#{line1}\n\n\n\n#{line2}"
-#    johndown(string).should == "<p>#{line1}</p><p>#{line2}</p>"
-#  end
+  it "should remove excess newlines" do
+    line1 = "This is a paragraph"
+    line2 = "with multiple paragraphs"
+    string = "#{line1}\n\n\n\n#{line2}"
+    johndown(string).should == "<p>#{line1}</p><p>#{line2}</p>"
+  end
 
   it "should convert single newlines within blocks of text into <br>s" do
     line1 = "This is a paragraph"

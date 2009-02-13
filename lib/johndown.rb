@@ -55,7 +55,7 @@ class Johndown
           @formatted_text << '</p>'
           @open_tags.delete(:p)
           
-        else
+        elsif @open_tags.include?(:p) && ! look_ahead([nil])
           @formatted_text << '<br/>'
         end
 
