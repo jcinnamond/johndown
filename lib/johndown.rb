@@ -37,9 +37,9 @@ class Johndown
 
         elsif @list
           if (look_ahead(Token::Type::NEWLINE) &&
-              ! look_ahead(Token::Type::NEWLINE,
-                           Token::Type::DIGIT,
-                           Token::Type::PERIOD))
+                ! look_ahead(Token::Type::NEWLINE,
+                Token::Type::DIGIT,
+                Token::Type::PERIOD))
             close(:li)
             close(@list)
             @list = nil
@@ -98,7 +98,7 @@ class Johndown
           @formatted_text << token.literal
         end
 
-      # Simple inline markup
+        # Simple inline markup
       when Token::Type::TILDE
         balance(:em)
         
@@ -112,10 +112,10 @@ class Johndown
           balance(:code)
         end
 
-      # Links  
+        # Links
       when Token::Type::LPAREN
         if look_ahead(Token::Type::STRING, Token::Type::RPAREN,
-                      Token::Type::URL)
+            Token::Type::URL)
           eat(Token::Type::WHITESPACE)
           link_text = @tokenizer.next_token
           eat(Token::Type::WHITESPACE)
@@ -144,17 +144,17 @@ class Johndown
 
         next_token = @tokenizer.peek
         if add_paragraph && (next_token.nil? ||
-                             next_token.type == Token::Type::NEWLINE)
+              next_token.type == Token::Type::NEWLINE)
           @formatted_text << '</p>'
         end
 
-      # Lists
+        # Lists
       when Token::Type::DIGIT
         skip_whitespace = ! @list.nil?
         if starts_line && 
             look_ahead(Token::Type::PERIOD, 
-                       Token::Type::WHITESPACE,
-                       :skip_whitespace => skip_whitespace)
+            Token::Type::WHITESPACE,
+            :skip_whitespace => skip_whitespace)
           eat(Token::Type::PERIOD)
           
           unless @list
@@ -169,15 +169,7 @@ class Johndown
 
       when Token::Type::DASH
         if starts_line
-          unless look_ahead(Token::Type::DASH)
-            # Single dashes represent lists
-            unless @list
-              @list = :ul
-              @formatted_text << '<ul>'
-              @open_tags << :ul
-            end
-
-          else
+          if look_ahead(Token::Type::DASH)
             # Check to see if this is a line of at least three dashes
             dash_count = 1
             while eat(Token::Type::DASH)
@@ -191,16 +183,34 @@ class Johndown
             else
               @formatted_text << '-' * dash_count
             end
+          else
+            # Single dashes represent lists
+            unless @list
+              @list = :ul
+              @formatted_text << '<ul>'
+              @open_tags << :ul
+            end
+
           end
           
-        else
-          add_to_paragraph token
+        elsif
+          dash_count = 1
+          while eat(Token::Type::DASH)
+            dash_count += 1
+          end
+
+          if dash_count == 2 &&
+                @tokenizer.peek.type == Token::Type::WHITESPACE
+              add_to_paragraph('&mdash;')
+          else
+            add_to_paragraph token.literal * dash_count
+          end
         end
 
       when Token::Type::LITERAL
         add_to_paragraph token
 
-      # Default paragraph handling
+        # Default paragraph handling
       when Token::Type::STRING
         if @heading
           @formatted_text << token.content.strip

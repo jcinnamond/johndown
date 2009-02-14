@@ -12,5 +12,9 @@ describe Johndown do
       '<p>This is a string with <strong>bold text</strong></p>'
   end
 
-  it "should convert -- to &emdash;"
+  it "should convert -- to &mdash;" do
+    string = 'This is a string -- with a dash'
+    johndown(string).should ==
+      '<p>This is a string &mdash; with a dash</p>'
+  end
 end
