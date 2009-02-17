@@ -40,7 +40,7 @@ class Tokenizer
       @tokens
     end
   end
-  
+
   private
 
   def tokenize

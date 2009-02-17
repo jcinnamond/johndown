@@ -12,5 +12,11 @@ describe Johndown do
     johndown(string).should == "<p>#{string}</p>"
   end
 
-  it "should convert -- within :quote: into a citation"
+  it "should convert -- within :quote: into a citation" do
+    quote = "This is a long quotation from somewhere"
+    citation = "With a citation"
+    string = ":quote:\n#{quote}\n--#{citation}\n:quote:"
+    johndown(string).should ==
+      "<blockquote><p>#{quote}</p><cite>#{citation}</cite></blockquote>"
+  end
 end

@@ -1,4 +1,6 @@
 require File.dirname(__FILE__) + '/johndown/tokenizer'
+require File.dirname(__FILE__) + '/johndown/parser'
+require File.dirname(__FILE__) + '/johndown/generator'
 
 class Johndown
   def initialize (string)
@@ -12,6 +14,13 @@ class Johndown
   private
 
   def format (string)
+    parser = Parser.new(string)
+    generator = Generator.new(parser.blocks)
+
+    @formatted_text = generator.html
+  end
+
+  def old_format (string)
     @tokenizer = Tokenizer.new
     @tokenizer.scan(string)
 
@@ -79,7 +88,6 @@ class Johndown
         if whole_line
           eat Token::Type::NEWLINE
           balance(:blockquote, false)
-
         else
           @formatted_text << token.literal
         end
@@ -199,7 +207,11 @@ class Johndown
             dash_count += 1
           end
 
-          if dash_count == 2 &&
+          if dash_count == 2 && starts_line &&
+              @open_tags.include?(:blockquote)
+            @formatted_text << '<cite>'
+            @open_tags << :cite
+          elsif dash_count == 2 &&
                 @tokenizer.peek.type == Token::Type::WHITESPACE
               add_to_paragraph('&mdash;')
           else
