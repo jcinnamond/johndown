@@ -25,4 +25,29 @@ describe Generator do
     end
   end
 
+  describe "inline" do
+    it "should wrap EM with <em>..</em>" do
+      @generator = Generator.new(
+        [
+          Block.new(Block::Type::EM, ["some paragraph"])
+        ]
+      )
+      @generator.html.should == "<em>some paragraph</em>"
+    end
+
+    it "should wrap STRONG with <strong>..</strong>" do
+      @generator = Generator.new(
+        [
+          Block.new(Block::Type::STRONG, ["some paragraph"])
+        ]
+      )
+      @generator.html.should == "<strong>some paragraph</strong>"
+    end
+
+    it "should replace MDASH with &mdash;" do
+      @generator = Generator.new([Block.new(Block::Type::MDASH)])
+      @generator.html.should == "&mdash;"
+    end
+  end
+
 end

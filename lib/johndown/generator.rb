@@ -8,22 +8,40 @@ class Generator
   def html
     html = ''
     blocks.each do |block|
-      html << html_paragraph(block)
+      html << generate(block)
     end
     html
   end
 
   protected
 
-  def html_paragraph (block)
-    paragraph = "<p>"
+  def generate (block)
+    case block.type
+    when Block::Type::PARAGRAPH
+      wrap(block, :p)
+    when Block::Type::EM
+      wrap(block, :em)
+    when Block::Type::STRONG
+      wrap(block, :strong)
+    when Block::Type::MDASH
+      "&mdash;"
+    else
+      raise "Don't know how to generate #{block.inspect}"
+    end
+  end
+
+
+  def wrap (block, tag)
+    content = "<#{tag}>"
     block.content.each do |element|
-      if element == "\n"
-        paragraph << "<br/>"
+      if element.kind_of?(Block)
+        content << generate(element)
+      elsif element == "\n"
+        content << "<br/>"
       else
-        paragraph << element
+        content << element
       end
     end
-    paragraph << "</p>"
+    content << "</#{tag}>"
   end
 end

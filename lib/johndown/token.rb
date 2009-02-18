@@ -69,4 +69,14 @@ class Token
     return ESCAPED_LITERALS[@type] if ESCAPED_LITERALS[@type]
     literal
   end
+  
+  def type_as_string
+    Type.constants.each do |constant|
+      return constant if Type.const_get(constant) == self.type
+    end
+  end
+
+  def inspect
+    "<Token: type=#{type_as_string} content='#{content}'>"
+  end
 end
