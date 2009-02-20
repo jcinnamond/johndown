@@ -27,6 +27,8 @@ class Generator
       "&mdash;"
     when Block::Type::BLOCKQUOTE
       blockquote(block)
+    when Block::Type::HR
+      "<hr/>"
     else
       raise "Don't know how to generate #{block.inspect}"
     end

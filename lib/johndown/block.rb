@@ -6,6 +6,7 @@ class Block
     MDASH      = 1 << 3
     BLOCKQUOTE = 1 << 4
     CITATION   = 1 << 5
+    HR         = 1 << 6
   end
 
   attr_accessor :type, :content

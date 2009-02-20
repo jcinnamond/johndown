@@ -87,4 +87,19 @@ describe Parser do
         ["A paragraph with - a single dash"]
     end
   end
+
+  describe "with ---" do
+    before(:each) do
+      @parser = Parser.new("A paragraph with --- three dashes")
+    end
+
+    it "should return one top level block" do
+      @parser.blocks.size.should == 1
+    end
+
+    it "should set the paragraph contents" do
+      @parser.blocks.first.content.should ==
+        ["A paragraph with --- three dashes"]
+    end
+  end
 end

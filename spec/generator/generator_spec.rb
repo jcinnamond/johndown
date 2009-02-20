@@ -70,4 +70,13 @@ describe Generator do
         "<blockquote><p>some quote</p><cite>citation</cite></blockquote>"
     end
   end
+
+  describe "hr" do
+    it "should convert HR to <hr/>" do
+      @generator = Generator.new(
+        [Block.new(Block::Type::HR, [])]
+      )
+      @generator.html.should == "<hr/>"
+    end
+  end
 end

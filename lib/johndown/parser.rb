@@ -22,8 +22,15 @@ class Parser
 
       if match_tokens(Token::Type::NEWLINE)
         eat
+
       elsif match_line(Token::Type::QUOTE_BLOCK)
         block = parse_quotation
+
+      elsif match_line(
+          Token::Type::DASH, Token::Type::DASH, Token::Type::DASH,
+          [Token::Type::DASH, nil], [Token::Type::DASH, nil]
+        )
+        block = parse_hr
 
       else
         block = parse_paragraph
@@ -59,6 +66,12 @@ class Parser
 
       content
     end
+  end
+
+  def parse_hr
+    eat_while(Token::Type::DASH) # Dashes
+    eat                          # and newline
+    Block.new(Block::Type::HR, [])
   end
 
   def parse_block (type, *closing, &block)
@@ -142,9 +155,13 @@ class Parser
       content = parse_inline(Block::Type::STRONG, Token::Type::ASTERISK)
 
     elsif match_tokens(Token::Type::DASH, Token::Type::DASH)
-      eat
-      eat
-      content = Block.new(Block::Type::MDASH)
+      eat(2)
+      if match_tokens(Token::Type::WHITESPACE)
+        content = Block.new(Block::Type::MDASH)
+      else
+        content = "--"
+        content += eat_while(Token::Type::DASH).map { |t| t.literal }.join()
+      end
 
     else
       content = eat.literal
@@ -203,10 +220,12 @@ class Parser
 
   def eat_while (token_type)
     next_token = @tokenizer.peek
+    eaten = []
     while (next_token && next_token.type == token_type)
-      eat
+      eaten << eat
       next_token = @tokenizer.peek
     end
+    eaten
   end
 
   def eat (token_count = 1)
