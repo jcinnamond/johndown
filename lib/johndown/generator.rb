@@ -25,14 +25,32 @@ class Generator
       wrap(block, :strong)
     when Block::Type::MDASH
       "&mdash;"
+    when Block::Type::BLOCKQUOTE
+      blockquote(block)
     else
       raise "Don't know how to generate #{block.inspect}"
     end
   end
 
+  def blockquote (block)
+    content = "<blockquote>"
 
-  def wrap (block, tag)
-    content = "<#{tag}>"
+    block.content.each do |element|
+      if element.kind_of?(String)
+        content << "<p>#{element}</p>"
+      elsif element.kind_of?(Block) && element.type == Block::Type::CITATION
+        content << wrap(element, :cite)
+      else
+        content << generate(element)
+      end
+    end
+
+    content << "</blockquote>"
+  end
+
+  def wrap (block, *tags)
+    content = tags.inject("") { |str, tag| str << "<#{tag}>"}
+
     block.content.each do |element|
       if element.kind_of?(Block)
         content << generate(element)
@@ -42,6 +60,6 @@ class Generator
         content << element
       end
     end
-    content << "</#{tag}>"
+    content << tags.reverse.inject("") { |str, tag| str << "</#{tag}>"}
   end
 end

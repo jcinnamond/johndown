@@ -83,13 +83,8 @@ describe Parser do
     end
 
     it "should set the paragraph contents" do
-      @parser.blocks.first.content.should ==
-        [
-        "A paragraph with ",
-        "-",
-        " ",
-        "a single dash"
-        ]
+      @parser.blocks.first.content.should == 
+        ["A paragraph with - a single dash"]
     end
   end
 end

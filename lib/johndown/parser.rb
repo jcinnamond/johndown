@@ -1,4 +1,5 @@
 require File.join(File.dirname(__FILE__), 'block')
+require File.join(File.dirname(__FILE__), 'content')
 
 $debug = false
 
@@ -17,35 +18,68 @@ class Parser
     loop_count = 0
     limit = @tokenizer.tokens.size
     until @tokenizer.peek == nil
+      block = nil
 
       if match_tokens(Token::Type::NEWLINE)
         eat
+      elsif match_line(Token::Type::QUOTE_BLOCK)
+        block = parse_quotation
+
       else
         block = parse_paragraph
-        puts "\n\nAdding block #{block.inspect}" if $debug
-        blocks << block if block
       end
+      
+      blocks << block if block
       
       loop_count += 1
       raise "Infinite parsing loop. Parser is broken" if loop_count > limit
     end
 
-    puts "Returning #{blocks.inspect}" if $debug
     blocks
   end
 
   def parse_paragraph
-    content = []
+    parse_block(
+      Block::Type::PARAGRAPH,
+      Token::Type::NEWLINE, Token::Type::NEWLINE
+    )
+  end
+
+  def parse_quotation
+    eat(2) # The quote token and newline
+
+    parse_block(Block::Type::BLOCKQUOTE, Token::Type::QUOTE_BLOCK) do
+      content = nil
+
+      if match_tokens(Token::Type::DASH, Token::Type::DASH)
+        eat(2)
+        eat_while(Token::Type::WHITESPACE)
+        content = parse_block(Block::Type::CITATION, Token::Type::NEWLINE)
+      end
+
+      content
+    end
+  end
+
+  def parse_block (type, *closing, &block)
+    content = Content.new
     finished = false
 
-    puts "Parsing paragraph #{@tokenizer.tokens.inspect}" if $debug
+    puts "Parsing #{type} #{@tokenizer.tokens.inspect}" if $debug
 
     until finished
-      if match_tokens(nil)
+      block_content = nil
+      if block_given?
+        block_content = yield
+      end
+
+      if ! block_content.nil?
+        content << block_content
+      elsif match_tokens(nil)
         puts "Finished tokenizing due to EOF" if $debug
         finished = true
 
-      elsif match_tokens(Token::Type::NEWLINE, Token::Type::NEWLINE)
+      elsif match_tokens(*closing)
         puts "Finished tokenizing due to double newline" if $debug
         eat(2)
         finished = true
@@ -55,13 +89,17 @@ class Parser
       end
     end
 
-    puts "Adding paragraph block #{content.inspect}" if $debug
-    Block.new(Block::Type::PARAGRAPH, content)
+    if content.last == "\n"
+      content.pop
+    end
+
+    puts "Adding #{type} block #{content.inspect}" if $debug
+    Block.new(type, content)
   end
 
 
   def parse_inline(type, closing)
-    content = []
+    content = Content.new
     finished = false
 
     puts "\tParsing #{type} #{@tokenizer.peek.inspect}" if $debug
@@ -75,7 +113,6 @@ class Parser
         finished = true
 
       elsif match_tokens(Token::Type::NEWLINE, Token::Type::NEWLINE)
-        # Auto close ~ at the end of the block
         finished = true
 
       else
@@ -109,16 +146,8 @@ class Parser
       eat
       content = Block.new(Block::Type::MDASH)
 
-    elsif match_tokens([
-          Token::Type::STRING,
-          Token::Type::WHITESPACE,
-          Token::Type::NEWLINE,
-          Token::Type::DASH
-        ])
-      content = eat.literal
-
     else
-      raise "Unexpected token: #{@tokenizer.peek.inspect}"
+      content = eat.literal
     end
 
     content
@@ -154,7 +183,31 @@ class Parser
 
     match
   end
+
+  def match_line (*expected_tokens)
+    match_tokens(expected_tokens) &&
+      starts_line &&
+      ends_line(expected_tokens.to_a.size)
+  end
+
+  def starts_line
+    @tokenizer.previous_token.nil? ||
+      @tokenizer.previous_token.type == Token::Type::NEWLINE
+  end
+
+  def ends_line (line_length)
+    @tokenizer.peek(line_length).nil? ||
+      @tokenizer.peek(line_length).type == Token::Type::NEWLINE
+  end
     
+
+  def eat_while (token_type)
+    next_token = @tokenizer.peek
+    while (next_token && next_token.type == token_type)
+      eat
+      next_token = @tokenizer.peek
+    end
+  end
 
   def eat (token_count = 1)
     token = nil

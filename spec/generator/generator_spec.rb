@@ -50,4 +50,24 @@ describe Generator do
     end
   end
 
+
+  describe "quotes" do
+    it "should wrap BLOCKQUOTE with <blockquote><p>...</p></blockquote>" do
+      @generator = Generator.new(
+        [Block.new(Block::Type::BLOCKQUOTE, ["some quote"])]
+      )
+      @generator.html.should == "<blockquote><p>some quote</p></blockquote>"
+    end
+
+    it "should convert a CITATION within a BLOCKQUOTE to <cite>...</cite>" do
+      @generator = Generator.new(
+        [Block.new(Block::Type::BLOCKQUOTE, [
+              "some quote",
+              Block.new(Block::Type::CITATION, ["citation"])
+            ])]
+      )
+      @generator.html.should ==
+        "<blockquote><p>some quote</p><cite>citation</cite></blockquote>"
+    end
+  end
 end
