@@ -106,4 +106,22 @@ describe Generator do
       @generator.html.should == "<em>emphasised text</em>"
     end
   end
+
+  describe "headings" do
+    it "should convert a heading with level 1 to H1" do
+      @generator = Generator.new(
+        [Block.new(Block::Type::HEADING, [1, "heading"])]
+      )
+      @generator.html.should == "<h1>heading</h1>"
+    end
+
+    it "should convert a heading with level x to Hx" do
+      (2..9).each do |level|
+        @generator = Generator.new(
+          [Block.new(Block::Type::HEADING, [level, "heading"])]
+        )
+        @generator.html.should == "<h#{level}>heading</h#{level}>"
+      end
+    end
+  end
 end

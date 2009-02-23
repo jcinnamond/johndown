@@ -10,6 +10,7 @@ class Block
     INLINE_CODE = 1 << 7
     CODE_BLOCK  = 1 << 8
     DNF         = 1 << 9
+    HEADING     = 1 << 10
   end
 
   attr_accessor :type, :content

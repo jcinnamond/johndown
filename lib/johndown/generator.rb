@@ -35,6 +35,8 @@ class Generator
       code_block(block)
     when Block::Type::DNF
       block.content.join
+    when Block::Type::HEADING
+      heading(block)
     else
       raise "Don't know how to generate #{block.inspect}"
     end
@@ -66,6 +68,21 @@ class Generator
       end
     end
     content << "\n</code></pre>"
+  end
+
+  def heading(block)
+    level = block.content.shift
+    content = "<h#{level}>"
+
+    block.content.each do |element|
+      if element.kind_of?(Block)
+        content << generate(element)
+      else
+        content << element
+      end
+    end
+
+    content << "</h#{level}>"
   end
 
   def wrap (block, *tags)

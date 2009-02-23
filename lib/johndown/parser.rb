@@ -41,6 +41,9 @@ class Parser
       elsif match_line(Token::Type::DNF_BLOCK)
         block = parse_dnf
 
+      elsif match_tokens(Token::Type::HASH) && starts_line
+        block = parse_heading
+
       else
         block = parse_paragraph
       end
@@ -119,6 +122,13 @@ class Parser
     eat_while(Token::Type::DASH) # Dashes
     eat                          # and newline
     Block.new(Block::Type::HR, [])
+  end
+
+  def parse_heading
+    level = eat_while(Token::Type::HASH).size
+    eat_while(Token::Type::WHITESPACE)
+    content = default_parsing
+    Block.new(Block::Type::HEADING, [level, content])
   end
 
   def parse_block (type, *closing, &block)
