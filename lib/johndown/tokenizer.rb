@@ -27,7 +27,11 @@ class Tokenizer
   end
 
   def peek (offset = 0)
-    @tokens[@pos + offset]
+    if @pos + offset < 0
+      nil
+    else
+      @tokens[@pos + offset]
+    end
   end
 
   def tokens

@@ -79,4 +79,22 @@ describe Generator do
       @generator.html.should == "<hr/>"
     end
   end
+
+  describe "inline code" do
+    it "should convert INLINE_CODE to <code>...</code>" do
+      @generator = Generator.new(
+        [Block.new(Block::Type::INLINE_CODE, ["inline code"])]
+      )
+      @generator.html.should == "<code>inline code</code>"
+    end
+  end
+
+  describe "code block" do
+    it "should convert CODE_BLOCK to <pre><code>...</code></pre>" do
+      @generator = Generator.new(
+        [Block.new(Block::Type::CODE_BLOCK, ["code block"])]
+      )
+      @generator.html.should == "<pre><code>\ncode block\n</code></pre>"
+    end
+  end
 end

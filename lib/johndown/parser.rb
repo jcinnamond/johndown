@@ -32,6 +32,12 @@ class Parser
         )
         block = parse_hr
 
+      elsif match_line(Token::Type::CODE_BLOCK)
+        block = parse_code(eat.type)
+
+      elsif match_line(Token::Type::BACKTICK)
+        block = parse_code(eat.type)
+
       else
         block = parse_paragraph
       end
@@ -68,6 +74,22 @@ class Parser
     end
   end
 
+  def parse_code (closing_type)
+    eat # The newline
+    parse_block(Block::Type::CODE_BLOCK, closing_type) do
+      content = nil
+
+      if match_tokens(Token::Type::BACKTICK)
+        if closing_type != Token::Type::BACKTICK ||
+            ! match_line(Token::Type::BACKTICK)
+          content = eat.literal
+        end
+      end
+
+      content
+    end
+  end
+
   def parse_hr
     eat_while(Token::Type::DASH) # Dashes
     eat                          # and newline
@@ -88,6 +110,7 @@ class Parser
 
       if ! block_content.nil?
         content << block_content
+
       elsif match_tokens(nil)
         puts "Finished tokenizing due to EOF" if $debug
         finished = true
@@ -154,6 +177,10 @@ class Parser
       eat
       content = parse_inline(Block::Type::STRONG, Token::Type::ASTERISK)
 
+    elsif match_tokens(Token::Type::BACKTICK)
+      eat
+      content = parse_inline(Block::Type::INLINE_CODE, Token::Type::BACKTICK)
+
     elsif match_tokens(Token::Type::DASH, Token::Type::DASH)
       eat(2)
       if match_tokens(Token::Type::WHITESPACE)
@@ -208,8 +235,8 @@ class Parser
   end
 
   def starts_line
-    @tokenizer.previous_token.nil? ||
-      @tokenizer.previous_token.type == Token::Type::NEWLINE
+    @tokenizer.peek(-1).nil? ||
+      @tokenizer.peek(-1).type == Token::Type::NEWLINE
   end
 
   def ends_line (line_length)

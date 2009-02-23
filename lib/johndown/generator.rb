@@ -29,6 +29,10 @@ class Generator
       blockquote(block)
     when Block::Type::HR
       "<hr/>"
+    when Block::Type::INLINE_CODE
+      wrap(block, :code)
+    when Block::Type::CODE_BLOCK
+      code_block(block)
     else
       raise "Don't know how to generate #{block.inspect}"
     end
@@ -48,6 +52,18 @@ class Generator
     end
 
     content << "</blockquote>"
+  end
+
+  def code_block (block)
+    content = "<pre><code>\n"
+    block.content.each do |element|
+      if element.kind_of?(Block)
+        content << generate(element)
+      else
+        content << element
+      end
+    end
+    content << "\n</code></pre>"
   end
 
   def wrap (block, *tags)

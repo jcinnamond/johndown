@@ -1,12 +1,14 @@
 class Block
   module Type
-    PARAGRAPH  = 1 << 0
-    EM         = 1 << 1
-    STRONG     = 1 << 2
-    MDASH      = 1 << 3
-    BLOCKQUOTE = 1 << 4
-    CITATION   = 1 << 5
-    HR         = 1 << 6
+    PARAGRAPH   = 1 << 0
+    EM          = 1 << 1
+    STRONG      = 1 << 2
+    MDASH       = 1 << 3
+    BLOCKQUOTE  = 1 << 4
+    CITATION    = 1 << 5
+    HR          = 1 << 6
+    INLINE_CODE = 1 << 7
+    CODE_BLOCK  = 1 << 8
   end
 
   attr_accessor :type, :content

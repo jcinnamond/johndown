@@ -24,13 +24,24 @@ describe Tokenizer do
       end
     end
 
-    describe "with an argument" do
+    describe "with an positive integer" do
       before(:each) do
         @token = @tokenizer.peek(1)
       end
 
       it "should return the token at the position given" do
         @token.should == @tokenizer.tokens.last
+      end
+    end
+
+    describe "with a negative integer" do
+      it "should return the token at the previous position specified" do
+        @tokenizer.next_token
+        @tokenizer.peek(-1).should == @tokenizer.tokens.first
+      end
+
+      it "should return nil if there are no previous tokens" do
+        @tokenizer.peek(-1).should be_nil
       end
     end
   end
