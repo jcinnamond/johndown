@@ -9,6 +9,7 @@ class Block
     HR          = 1 << 6
     INLINE_CODE = 1 << 7
     CODE_BLOCK  = 1 << 8
+    DNF         = 1 << 9
   end
 
   attr_accessor :type, :content

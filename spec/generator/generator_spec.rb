@@ -97,4 +97,13 @@ describe Generator do
       @generator.html.should == "<pre><code>\ncode block\n</code></pre>"
     end
   end
+
+  describe "dnf" do
+    it "should output the literal content of DNF" do
+      @generator = Generator.new(
+        [Block.new(Block::Type::DNF, ["<em>emphasised text</em>"])]
+      )
+      @generator.html.should == "<em>emphasised text</em>"
+    end
+  end
 end

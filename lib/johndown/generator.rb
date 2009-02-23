@@ -33,6 +33,8 @@ class Generator
       wrap(block, :code)
     when Block::Type::CODE_BLOCK
       code_block(block)
+    when Block::Type::DNF
+      block.content.join
     else
       raise "Don't know how to generate #{block.inspect}"
     end

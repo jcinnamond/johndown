@@ -2,8 +2,8 @@ require File.join(File.dirname(__FILE__), 'markup_helper.rb')
 
 describe Johndown do
   it "should not try to markup text surrounded by :dnf:" do
-    dnf = "This has literal\nnewlines & unescaped <html> tags\n"
-    string = ":dnf:\n" << dnf << ":dnf:"
+    dnf = "This has literal\nnewlines & unescaped <html> tags"
+    string = ":dnf:\n" << dnf << "\n:dnf:"
     johndown(string).should == dnf
   end
 

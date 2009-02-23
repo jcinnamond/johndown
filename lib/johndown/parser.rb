@@ -38,6 +38,9 @@ class Parser
       elsif match_line(Token::Type::BACKTICK)
         block = parse_code(eat.type)
 
+      elsif match_line(Token::Type::DNF_BLOCK)
+        block = parse_dnf
+
       else
         block = parse_paragraph
       end
@@ -90,6 +93,28 @@ class Parser
     end
   end
 
+  def parse_dnf
+    eat(2) # The :dnf: and the newline
+    content = Content.new
+    finished = false
+
+    until finished
+      if match_tokens(nil)
+        finished  = true
+
+      elsif match_line(Token::Type::DNF_BLOCK)
+        eat
+        finished = true
+
+      else
+        content << eat.literal
+      end
+    end
+
+    content.trim
+    Block.new(Block::Type::DNF, content)
+  end
+
   def parse_hr
     eat_while(Token::Type::DASH) # Dashes
     eat                          # and newline
@@ -117,7 +142,7 @@ class Parser
 
       elsif match_tokens(*closing)
         puts "Finished tokenizing due to double newline" if $debug
-        eat(2)
+        eat(closing.size)
         finished = true
 
       else
@@ -125,9 +150,7 @@ class Parser
       end
     end
 
-    if content.last == "\n"
-      content.pop
-    end
+    content.trim
 
     puts "Adding #{type} block #{content.inspect}" if $debug
     Block.new(type, content)
@@ -191,7 +214,7 @@ class Parser
       end
 
     else
-      content = eat.literal
+      content = eat.escaped_literal
     end
 
     content
@@ -243,7 +266,10 @@ class Parser
     @tokenizer.peek(line_length).nil? ||
       @tokenizer.peek(line_length).type == Token::Type::NEWLINE
   end
-    
+
+  def end_of_tokens
+    @tokenizer.peek.nil?
+  end
 
   def eat_while (token_type)
     next_token = @tokenizer.peek
