@@ -124,4 +124,20 @@ describe Generator do
       end
     end
   end
+
+  describe "lists" do
+    it "should convert UL/LI to <ul><li>...</li></ul>" do
+      @generator = Generator.new(
+        [
+          Block.new(
+            Block::Type::UL, [
+              Block.new(Block::Type::LI, ["First list item"]),
+              Block.new(Block::Type::LI, ["Second list item"])
+            ]
+          )
+        ]
+      )
+      @generator.html.should == "<ul><li>First list item</li><li>Second list item</li></ul>"
+    end
+  end
 end

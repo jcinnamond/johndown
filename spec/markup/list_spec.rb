@@ -5,7 +5,7 @@ describe Johndown do
     it "should convert - to unordered lists" do
       string = "- A list item\n - And another one\n-and another"
       johndown(string).should ==
-        "<ul><li> A list item</li><li>  And another one</li>" +
+        "<ul><li>A list item</li><li>And another one</li>" +
         "<li>and another</li></ul>"
     end
 

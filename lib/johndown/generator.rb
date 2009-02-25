@@ -37,6 +37,8 @@ class Generator
       block.content.join
     when Block::Type::HEADING
       heading(block)
+    when Block::Type::UL
+      list(block)
     else
       raise "Don't know how to generate #{block.inspect}"
     end
@@ -70,7 +72,7 @@ class Generator
     content << "\n</code></pre>"
   end
 
-  def heading(block)
+  def heading (block)
     level = block.content.shift
     content = "<h#{level}>"
 
@@ -83,6 +85,14 @@ class Generator
     end
 
     content << "</h#{level}>"
+  end
+
+  def list (block)
+    content = "<ul>"
+    block.content.inject(content) do |list, list_item|
+      list << wrap(list_item, :li)
+    end
+    content << "</ul>"
   end
 
   def wrap (block, *tags)

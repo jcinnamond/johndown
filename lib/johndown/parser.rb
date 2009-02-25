@@ -44,6 +44,9 @@ class Parser
       elsif match_tokens(Token::Type::HASH) && starts_line
         block = parse_heading
 
+      elsif match_tokens(Token::Type::DASH) && starts_line
+        block = parse_ul
+
       else
         block = parse_paragraph
       end
@@ -129,6 +132,48 @@ class Parser
     eat_while(Token::Type::WHITESPACE)
     content = default_parsing
     Block.new(Block::Type::HEADING, [level, content])
+  end
+
+  def parse_ul
+    eat
+    eat_while(Token::Type::WHITESPACE)
+
+    ul_content = Content.new
+    li_content = Content.new
+    
+    finished = false
+
+    until finished
+      if match_tokens(nil)
+        unless li_content.empty?
+          li_content.trim
+          ul_content << Block.new(Block::Type::LI, li_content)
+        end
+        finished = true
+
+      elsif match_tokens(Token::Type::DASH) && starts_line
+        eat
+        eat_while(Token::Type::WHITESPACE)
+        li_content.trim
+        ul_content << Block.new(Block::Type::LI, li_content)
+        li_content = Content.new
+
+      elsif match_tokens(Token::Type::WHITESPACE)
+        eat
+
+      elsif starts_line
+        unless li_content.empty?
+          li_content.trim
+          ul_content << Block.new(Block::Type::LI, li_content)
+        end
+        finished = true
+
+      else
+        li_content << default_parsing
+      end
+    end
+
+    Block.new(Block::Type::UL, ul_content)
   end
 
   def parse_block (type, *closing, &block)
@@ -268,8 +313,17 @@ class Parser
   end
 
   def starts_line
-    @tokenizer.peek(-1).nil? ||
-      @tokenizer.peek(-1).type == Token::Type::NEWLINE
+    # Skip backwards over whitespace
+    offset = -1
+    while @tokenizer.peek(offset) &&
+        @tokenizer.peek(offset).type == Token::Type::WHITESPACE
+      offset -= 1
+    end
+
+    # The token before the whitespace must be nil (start of the document)
+    # or a newline
+    @tokenizer.peek(offset).nil? ||
+      @tokenizer.peek(offset).type == Token::Type::NEWLINE
   end
 
   def ends_line (line_length)
