@@ -19,8 +19,8 @@ describe Johndown do
     it "should convert lines starting with 1. to an ordered list" do
       string = "1. This is an item\n  1.This is another\n\n1. And yet another"
       johndown(string).should ==
-        "<ol><li> This is an item</li><li>  This is another</li>" +
-        "<li> And yet another</li></ol>"
+        "<ol><li>This is an item</li><li>This is another</li>" +
+        "<li>And yet another</li></ol>"
     end
 
     it "should not convert a number on its own to a list" do

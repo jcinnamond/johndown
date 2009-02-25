@@ -12,7 +12,8 @@ class Block
     DNF         = 1 << 9
     HEADING     = 1 << 10
     UL          = 1 << 11
-    LI          = 1 << 12
+    OL          = 1 << 12
+    LI          = 1 << 13
   end
 
   attr_accessor :type, :content

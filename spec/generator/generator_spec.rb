@@ -137,7 +137,23 @@ describe Generator do
           )
         ]
       )
-      @generator.html.should == "<ul><li>First list item</li><li>Second list item</li></ul>"
+      @generator.html.should ==
+        "<ul><li>First list item</li><li>Second list item</li></ul>"
+    end
+
+    it "should convert OL/LI to <ol><li>...</li></ol>" do
+      @generator = Generator.new(
+        [
+          Block.new(
+            Block::Type::OL, [
+              Block.new(Block::Type::LI, ["First list item"]),
+              Block.new(Block::Type::LI, ["Second list item"])
+            ]
+          )
+        ]
+      )
+      @generator.html.should ==
+        "<ol><li>First list item</li><li>Second list item</li></ol>"
     end
   end
 end

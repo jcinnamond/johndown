@@ -47,6 +47,11 @@ class Parser
       elsif match_tokens(Token::Type::DASH) && starts_line
         block = parse_ul
 
+      elsif match_tokens(
+          Token::Type::DIGIT, Token::Type::PERIOD, Token::Type::WHITESPACE
+        ) && starts_line
+        block = parse_ol
+
       else
         block = parse_paragraph
       end
@@ -134,11 +139,19 @@ class Parser
     Block.new(Block::Type::HEADING, [level, content])
   end
 
+  def parse_ol
+    parse_list(Block::Type::OL, Token::Type::DIGIT, Token::Type::PERIOD)
+  end
+
   def parse_ul
-    eat
+    parse_list(Block::Type::UL, Token::Type::DASH)
+  end
+
+  def parse_list(type, *next_element)
+    eat(next_element.size)
     eat_while(Token::Type::WHITESPACE)
 
-    ul_content = Content.new
+    list_content = Content.new
     li_content = Content.new
     
     finished = false
@@ -147,24 +160,27 @@ class Parser
       if match_tokens(nil)
         unless li_content.empty?
           li_content.trim
-          ul_content << Block.new(Block::Type::LI, li_content)
+          list_content << Block.new(Block::Type::LI, li_content)
         end
         finished = true
 
-      elsif match_tokens(Token::Type::DASH) && starts_line
-        eat
+      elsif match_tokens(*next_element) && starts_line
+        eat(next_element.size)
         eat_while(Token::Type::WHITESPACE)
         li_content.trim
-        ul_content << Block.new(Block::Type::LI, li_content)
+        list_content << Block.new(Block::Type::LI, li_content)
         li_content = Content.new
 
       elsif match_tokens(Token::Type::WHITESPACE)
         eat
 
+      elsif match_tokens(Token::Type::NEWLINE, Token::Type::NEWLINE)
+        eat(2)
+
       elsif starts_line
         unless li_content.empty?
           li_content.trim
-          ul_content << Block.new(Block::Type::LI, li_content)
+          list_content << Block.new(Block::Type::LI, li_content)
         end
         finished = true
 
@@ -173,7 +189,7 @@ class Parser
       end
     end
 
-    Block.new(Block::Type::UL, ul_content)
+    Block.new(type, list_content)
   end
 
   def parse_block (type, *closing, &block)
