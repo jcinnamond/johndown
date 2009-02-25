@@ -80,6 +80,17 @@ describe Tokenizer do
     )
   end
 
+  it "should tokenizer URLs surrounded by parentheses" do
+    string = "A link: (http://www.internet/)."
+    @tokenizer.scan(string)
+
+    @tokenizer.should have_token_stream(
+      [Token::Type::STRING, "A link: "],
+      [Token::Type::URL, "http://www.internet/"],
+      [Token::Type::PERIOD]
+    )
+  end
+
   it "should tokenize parentheses" do
     string = "This has (parentheses)"
     @tokenizer.scan(string)

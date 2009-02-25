@@ -108,8 +108,16 @@ class Tokenizer
         add(Token::Type::NEWLINE)
 
       when '('
-        add(Token::Type::LPAREN)
-
+        if @scanner.peek(7) == 'http://'
+          save
+          @tokens << Token.new(Token::Type::URL, @scanner.scan(/[^)|$]+/))
+          # Eat the )
+          @scanner.getch
+          
+        else
+          add(Token::Type::LPAREN)
+        end
+        
       when ')'
         add(Token::Type::RPAREN)
 

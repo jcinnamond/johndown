@@ -27,14 +27,26 @@ describe Johndown do
       '<p><a href="http://link.to/">http://link.to/</a></p>'
   end
 
-  it "should cope with named links at the start of a paragraph"
+  it "should cope with named links at the start of a paragraph" do
+    string = "(my blog) http://link.to/"
+    johndown(string).should ==
+      '<p><a href="http://link.to/">my blog</a></p>'
+  end
 
   it "should not try to convert (text) into a link if no url is present" do
     string = "This is (not) a link"
     johndown(string).should == "<p>#{string}</p>"
   end
 
-  it "should convert (url) into a link"
+  it "should convert (url) into a link" do
+    string = "(my blog) (http://link.to/)"
+    johndown(string).should ==
+      '<p><a href="http://link.to/">my blog</a></p>'
+  end
 
-  it "should not include characters abutting (url) in the link"
+  it "should not include characters abutting (url) in the link" do
+    string = "A link to (my blog) (http://link.to/)."
+    johndown(string).should ==
+      '<p>A link to <a href="http://link.to/">my blog</a>.</p>'
+  end
 end
