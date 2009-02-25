@@ -156,4 +156,37 @@ describe Generator do
         "<ol><li>First list item</li><li>Second list item</li></ol>"
     end
   end
+
+  describe "links" do
+    it 'should convert unnamed links to <a href="x">x</a>' do
+      url = "http://www,cinnamond.me.uk/"
+      @generator = Generator.new(
+        [
+          Block.new(
+            Block::Type::PARAGRAPH, [
+              Block.new(Block::Type::LINK, [url])
+            ]
+          )
+        ]
+      )
+      @generator.html.should ==
+        %(<p><a href="#{url}">#{url}</a></p>)
+    end
+
+    it 'should convert named links to <a href="x">y</a>' do
+      url = "http://www,cinnamond.me.uk/"
+      name = "my blog"
+      @generator = Generator.new(
+        [
+          Block.new(
+            Block::Type::PARAGRAPH, [
+              Block.new(Block::Type::LINK, [name, url])
+            ]
+          )
+        ]
+      )
+      @generator.html.should ==
+        %(<p><a href="#{url}">#{name}</a></p>)
+    end
+  end
 end

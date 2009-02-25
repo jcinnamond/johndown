@@ -41,6 +41,10 @@ class Generator
       list(block, :ul)
     when Block::Type::OL
       list(block, :ol)
+    when Block::Type::LINK
+      link(block)
+    when Block::Type::NAMED_LINK
+      link(block)
     else
       raise "Don't know how to generate #{block.inspect}"
     end
@@ -95,6 +99,13 @@ class Generator
       list << wrap(list_item, :li)
     end
     content << "</#{tag}>"
+  end
+
+  def link (block)
+    name = block.content.first
+    url = block.content.last
+
+    %(<a href="#{url}">#{name}</a>)
   end
 
   def wrap (block, *tags)

@@ -284,6 +284,25 @@ class Parser
         content += eat_while(Token::Type::DASH).map { |t| t.literal }.join()
       end
 
+    elsif match_tokens(
+        Token::Type::LPAREN,
+        Token::Type::STRING,
+        Token::Type::RPAREN,
+        Token::Type::URL,
+        :skip_whitespace => true
+      )
+      eat
+      eat_while(Token::Type::WHITESPACE)
+      name = eat
+      eat_while(Token::Type::WHITESPACE)
+      eat
+      eat_while(Token::Type::WHITESPACE)
+      url = eat
+      content = Block.new(Block::Type::LINK, [name.literal, url.literal])
+
+    elsif match_tokens(Token::Type::URL)
+      content = Block.new(Block::Type::LINK, [eat.literal])
+
     else
       content = eat.escaped_literal
     end
@@ -294,14 +313,24 @@ class Parser
   protected
 
   def match_tokens (*expected_tokens)
+    options = {}
+    if expected_tokens.last.kind_of?(Hash)
+      options = expected_tokens.pop
+    end
+
     offset = 0
     match = false
-    puts "\t* Lookahead called for #{expected_tokens.inspect}" if $debug
 
     expected_tokens.each do |expected_token_set|
       match = false
       token = @tokenizer.peek(offset)
       puts "\t* Checking #{token.inspect} against #{expected_token_set.inspect}" if $debug
+      if options[:skip_whitespace]
+        while token && token.type == Token::Type::WHITESPACE
+          offset += 1
+          token = @tokenizer.peek(offset)
+        end
+      end
 
       if token && expected_token_set.kind_of?(Array)
         match = expected_token_set.include?(token.type)
@@ -336,8 +365,8 @@ class Parser
       offset -= 1
     end
 
-    # The token before the whitespace must be nil (start of the document)
-    # or a newline
+    # The token before the whitespace must be nil (start of the document) or a
+    # newline
     @tokenizer.peek(offset).nil? ||
       @tokenizer.peek(offset).type == Token::Type::NEWLINE
   end

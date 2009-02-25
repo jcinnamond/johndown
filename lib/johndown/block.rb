@@ -14,6 +14,7 @@ class Block
     UL          = 1 << 11
     OL          = 1 << 12
     LI          = 1 << 13
+    LINK        = 1 << 14
   end
 
   attr_accessor :type, :content
